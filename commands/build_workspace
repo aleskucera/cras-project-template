@@ -1,0 +1,6 @@
+#!/bin/bash
+
+(
+  cd "${WORKSPACE_DIR}" || exit 1
+  catkin build -DPYTHON_EXECUTABLE=/usr/bin/python3
+)

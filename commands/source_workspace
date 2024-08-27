@@ -1,0 +1,5 @@
+#!/bin/bash
+
+(
+    source "${WORKSPACE_DIR}/devel/setup.bash"
+)

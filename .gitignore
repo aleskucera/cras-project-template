@@ -1,0 +1,11 @@
+images/*
+!images/.gitkeep
+
+logs/*
+!logs/.gitkeep
+
+# Ignore everything in the workspace folder but the src directory
+workspace/*
+!workspace/src/
+workspace/src/*
+!workspace/src/.gitkeep

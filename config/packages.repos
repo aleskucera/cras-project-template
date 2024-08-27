@@ -1,0 +1,16 @@
+repositories:
+  cloud_proc:
+    type: git
+    url: https://github.com/ctu-vras/cloud_proc.git
+    version: master
+  map_data:
+    type: git
+    url: https://github.com/vras-robotour/map_data.git
+  naex:
+    type: git
+    url: https://github.com/vras-robotour/naex.git
+    version: master
+  image_segmentation:
+    type: git
+    url: https://github.com/vras-robotour/image_segmentation.git
+    version: main
