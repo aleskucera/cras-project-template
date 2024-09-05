@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Source the configuration variables
-source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/../config/config.sh"
+source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/../../config/config.sh"
 
 # ============= START: SHARED VARIABLES =============
 
@@ -14,7 +14,7 @@ elif [[ "$(uname -m)" = *"aarch"* ]] || [[ "$(uname -m)" = *"arm"* ]]; then
 fi
 
 # Get the project folder
-PROJECT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")/..")
+PROJECT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")/../..")
 
 # Important paths
 ENV_DIR=$(realpath "$PROJECT_DIR/env")
@@ -27,23 +27,21 @@ COMMANDS_DIR=$(realpath "$PROJECT_DIR/commands")
 WORKSPACE_DIR=$(realpath "$PROJECT_DIR/workspace")
 
 # Important files
-IMAGE_FILE_NAME="${PROJECT_NAME}_${HARDWARE_TYPE}.simg"
-METADATA_FILE_NAME="${PROJECT_NAME}_${HARDWARE_TYPE}.json"
+IMAGE_FILE_NAME="${IMAGE_NAME}_${HARDWARE_TYPE}.simg"
+METADATA_FILE_NAME="${IMAGE_NAME}_${HARDWARE_TYPE}.json"
 
 IMAGE_FILE="${IMAGES_DIR}/${IMAGE_FILE_NAME}"
 METADATA_FILE="${IMAGES_DIR}/${METADATA_FILE_NAME}"
 REMOTE_IMAGE_FILE="${REMOTE_IMAGES_PATH}/${IMAGE_FILE_NAME}"
 REMOTE_METADATA_FILE="${REMOTE_IMAGES_PATH}/${METADATA_FILE_NAME}"
 
-LOG_FILE="${LOGS_DIR}/${PROJECT_NAME}.log"
+BUILD_LOG_FILE="${LOGS_DIR}/${IMAGE_NAME}.log"
 DEFINITION_FILE="${BUILD_DIR}/${HARDWARE_TYPE}.def"
 WORKSPACE_SETUP_FILE="${WORKSPACE_DIR}/devel/setup.bash"
 
 # Remote server
 REMOTE_USERNAME="${REMOTE_USERNAME:-$(whoami)}"
 SSH_PASSWORD=""
-
-
 
 if tput setaf 1 &>/dev/null; then
     tput sgr0 # reset colors

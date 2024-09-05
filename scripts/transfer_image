@@ -20,8 +20,8 @@ EOF
 # ============= START: Source the variables and utility functions =============
 
 # Source the variables and utility functions from external scripts
-source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/vars.sh"
-source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/utils.sh"
+source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/utils/vars.sh"
+source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/utils/functions.sh"
 
 # ============= END: Source the variables and utility functions =============
 

@@ -3,7 +3,7 @@
 # ============= START: PROJECT SPECIFIC VARIABLES =============
 
 # Project name with lowercase letters and no spaces
-PROJECT_NAME="main"
+IMAGE_NAME="base_image"
 
 # Remote server variables for storing images
 REMOTE_SERVER="login3.rci.cvut.cz"
@@ -14,13 +14,16 @@ REMOTE_IMAGES_PATH="/mnt/data/vras/data/robotour2024/images"
 
 # Define the environment variables to be exported to the container
 # Variables starting with APPTAINER_ will be exported to the container 
-# without the APPTAINER_ prefix
+# without the APPTAINERENV_ prefix
 export APPTAINERENV_USER="${USER}"
 export APPTAINERENV_DISPLAY="${DISPLAY}"
 export APPTAINERENV_XAUTHORITY="${XAUTHORITY}"
 
 # -------- End: Environment variables --------
 # -------- Start: Hardware specific paths --------
+
+# Get the project folder
+PROJECT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")/..")
 
 # Function to build common mount paths dynamically
 build_common_mount_paths() {
@@ -46,7 +49,6 @@ build_amd64_mount_paths() {
     # Find the VS Code if it exists
     if [ -d "/usr/share/code" ]; then
         mount_paths+=",/usr/share/code"
-        # mount_paths+=",/usr/share/code/bin/code:/usr/bin/code"
     fi
 
     # Bind snap directories
@@ -96,10 +98,9 @@ format_paths() {
 
 # Define hardware-specific configurations
 declare -A MOUNT_PATHS
-MOUNT_PATHS["commnon"]="$(format_paths "$(build_common_mount_paths)")"
-MOUNT_PATHS["amd64"]="$(format_paths "$(build_amd64_mount_paths)")"
-MOUNT_PATHS["arm64"]="$(format_paths "$(build_arm64_mount_paths)")"
-MOUNT_PATHS["jetson"]="$(format_paths "$(build_jetson_mount_paths)")"
+MOUNT_PATHS["amd64"]="$(format_paths "$(build_common_mount_paths)"),$(format_paths "$(build_amd64_mount_paths)")"
+MOUNT_PATHS["arm64"]="$(format_paths "$(build_common_mount_paths)"),$(format_paths "$(build_arm64_mount_paths)")"
+MOUNT_PATHS["jetson"]="$(format_paths "$(build_common_mount_paths)"),$(format_paths "$(build_jetson_mount_paths)")"
 
 # -------- End: Hardware specific bind mount_paths --------
 

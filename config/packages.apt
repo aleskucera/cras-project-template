@@ -1,6 +1,7 @@
 apt-utils
 vim
 curl
+cowsay
 tree
 tmux
 python3

@@ -12,7 +12,7 @@ EOF
 
 # Source the variables and utility functions
 source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/vars.sh"
-source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/utils.sh"
+source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/functions.sh"
 
 # ============= END: Source the variables and utility functions =============
 
@@ -22,8 +22,6 @@ init_workspace() {
   if [ ! -d build ] || [ ! -d devel ]; then
     info_log "Initializing the catkin workspace."
     source /opt/ros/noetic/setup.bash
-    rosdep update
-    rosdep install --from-paths src --ignore-src -r -y
     catkin build -DPYTHON_EXECUTABLE=/usr/bin/python3
   else
     info_log "The catkin workspace is already initialized."

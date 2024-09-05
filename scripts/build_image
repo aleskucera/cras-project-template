@@ -17,8 +17,8 @@ EOF
 # ============= START: Source the variables and utility functions =============
 
 # Source the variables and utility functions from external scripts
-source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/vars.sh"
-source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/utils.sh"
+source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/utils/vars.sh"
+source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/utils/functions.sh"
 
 # ============= END: Source the variables and utility functions =============
 
@@ -60,10 +60,10 @@ build_image() {
         export APPTAINER_TMPDIR="${HOME}/.apptainer_tmp"
         export APPTAINER_CACHEDIR="${HOME}/.apptainer_cache"
         # Build the image with Nvidia GPU support, logging output to the log file
-        sudo -E apptainer build --nv "${IMAGE_FILE}" "${DEFINITION_FILE}" 2>&1 | tee "${LOG_FILE}"
+        sudo -E apptainer build --nv "${IMAGE_FILE}" "${DEFINITION_FILE}" 2>&1 | tee "${BUILD_LOG_FILE}"
     else
         # Build the image with Nvidia GPU support, logging output to the log file
-        sudo apptainer build --nv "${IMAGE_FILE}" "${DEFINITION_FILE}" 2>&1 | tee "${LOG_FILE}"
+        sudo apptainer build --nv "${IMAGE_FILE}" "${DEFINITION_FILE}" 2>&1 | tee "${BUILD_LOG_FILE}"
     fi
 }
 

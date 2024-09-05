@@ -22,33 +22,10 @@ EOF
 # ============= START: Source the variables and utility functions =============
 
 # Source the variables and utility functions from external scripts
-source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/vars.sh"
-source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/utils.sh"
+source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/utils/vars.sh"
+source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/utils/functions.sh"
 
 # ============= END: Source the variables and utility functions =============
-
-# ============= START: Helper Functions =============
-
-# Function to get bind paths based on the hardware type (e.g., amd64, arm64, jetson)
-get_mount_paths() {
-    local hardware_type=$1  # The hardware type passed as an argument
-    local paths
-    
-    # Determine the bind paths based on the hardware type
-    case "$hardware_type" in 
-        "amd64"|"arm64"|"jetson")
-            paths="${MOUNT_PATHS["common"]}${MOUNT_PATHS[$hardware_type]}"
-            ;;
-        *)
-            error_log "Unknown hardware type: $hardware_type"
-            exit 1  # Exit if an unknown hardware type is encountered
-            ;;
-    esac
-
-    echo "$paths"  # Return the determined bind paths
-}
-
-# ============= END: Helper Functions =============
 
 # ============= START: Main =============
 
@@ -94,7 +71,7 @@ main() {
 
         # If the user agrees to install Apptainer, run the installation script
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            bash "${SCRIPTS_DIR}/install_apptainer.sh"
+            install_apptainer 
         else
             exit 1  # Exit if the user chooses not to install Apptainer
         fi
@@ -130,7 +107,7 @@ main() {
 
     # Log the start of the container and execute the container with the appropriate settings
     info_log "Starting Apptainer container from image ${PINK}$(basename "${IMAGE_FILE}")${RESET}."
-    apptainer exec $nvidia_gpu -B "$(get_mount_paths "$HARDWARE_TYPE")" -e $IMAGE_FILE "${SCRIPTS_DIR}/init_workspace.sh"
+    apptainer exec $nvidia_gpu -B "${MOUNT_PATHS[$HARDWARE_TYPE]}" -e $IMAGE_FILE "${SCRIPTS_DIR}/utils/init_workspace.sh"
 }
 
 # ============= END: Main =============

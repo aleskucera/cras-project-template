@@ -1,3 +1,15 @@
 #!/bin/bash
 
-echo "Hello Apptainer!"
+# Check if the script is running inside an Apptainer
+if [ -z "$APPTAINER_CONTAINER" ]; then
+    echo "This script is not running inside an Apptainer."
+    exit 1
+fi
+
+# Check if the cowsay command is available
+if ! command -v cowsay &> /dev/null; then
+    echo "The cowsay command is not available. Please add it to the config/packages.apt file and rebuild the Apptainer image."
+    exit 1
+fi
+
+cowsay "Hello from within the container!"

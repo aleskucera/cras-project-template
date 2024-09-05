@@ -89,6 +89,23 @@ is_apptainer_installed() {
     command -v apptainer &>/dev/null
 }
 
+install_apptainer() {
+    if ! is_online; then
+        error_log "You are offline. Please connect to the internet and try again."
+        exit 1
+    fi
+
+    if is_apptainer_installed; then
+        info_log "Apptainer is already installed."
+        exit 0
+    fi
+
+    sudo apt-get -y update
+    sudo apt -y install software-properties-common
+    sudo add-apt-repository -y ppa:apptainer/ppa
+    sudo apt-get -y install apptainer-suid
+}
+
 get_remote_image_time() {
     local creation_time
     if [ -n "$SSH_PASSWORD" ]; then
