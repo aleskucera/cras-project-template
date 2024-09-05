@@ -1,14 +1,6 @@
 # CRAS Project Template
 
-This repository contains the deployment scripts for the Singularity container of the RoboTour project. The documentation contains following sections:
-
-- [CRAS Project Template](#cras-project-template)
-  - [Repository structure](#repository-structure)
-  - [How to use](#how-to-use)
-    - [Configure the project](#configure-the-project)
-    - [Change the `setup.sh` script](#change-the-setupsh-script)
-    - [Build the image](#build-the-image)
-    - [Start the container](#start-the-container)
+This repository contains the template for the CRAS project. The template is used to create a new project that is based on the CRAS project structure. The project structure is defined in the [Repository structure](#repository-structure) section.
 
 ## Repository structure
 
