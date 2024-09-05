@@ -23,7 +23,8 @@ These functions should return a string in the following format:
 
 The first part of the string is the path on the host machine, and the second part is the path in the container. The paths are separated by a colon `:` and the different paths are separated by a comma `,`.
 
-> **Info:**During the dynamic build of the mount paths it can happen that the format of paths is not entirely correct. For example it can happen that the mount paths are not separated by a comma but multiple commas are used. Don't worry, the script will take care of this and will correct the format of the paths. So multiple commas will be replaced by a single comma and at the start and end of the string the commas will be removed.
+> [!NOTE] 
+> During the dynamic build of the mount paths it can happen that the format of paths is not entirely correct. For example it can happen that the mount paths are not separated by a comma but multiple commas are used. Don't worry, the script will take care of this and will correct the format of the paths. So multiple commas will be replaced by a single comma and at the start and end of the string the commas will be removed.
 
 ## `packages.apt` and `packages.pip`
 

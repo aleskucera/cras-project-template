@@ -6,7 +6,8 @@ The project environment is defined in the `env` directory of the project. The `e
 
 The `bashrc.sh` file is the main environment file for the project. It is copied during the build process to the `/etc/bash.bashrc` file in the container. This file is sourced every time a new shell is opened in the container. You can use this file to define environment variables that are needed for the project.
 
-> **Info:** `/etc/bash.bashrc` is the system-wide `.bashrc` file in the container. It has lower priority than the user's `.bashrc` file, so the environment variables defined in the `bashrc.sh` file will not override the user's environment variables, which is neat.
+> [!Note] 
+> `/etc/bash.bashrc` is the system-wide `.bashrc` file in the container. It has lower priority than the user's `.bashrc` file, so the environment variables defined in the `bashrc.sh` file will not override the user's environment variables, which is neat.
 
 ## Other `.sh` files
 
@@ -17,7 +18,8 @@ You can also create other `.sh` files in the `env` directory to define additiona
 - `bash_functions.sh`: This file is used to define bash functions that are needed for the project.
 - `bash_prompt.sh`: This file is used to define the bash prompt that is used in the container.
 
-> **Info:** The files in the `env` directory are sourced in the order they are listed in the `bashrc.sh` file. So make sure to list the files in the correct order to avoid conflicts between the environment variables.
+> [!NOTE] 
+> The files in the `env` directory are sourced in the order they are listed in the `bashrc.sh` file. So make sure to list the files in the correct order to avoid conflicts between the environment variables.
 
 ## `tmux.conf`
 
