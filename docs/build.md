@@ -9,7 +9,7 @@ of the project. Currently, there are three definition files in this directory: `
 The build process is defined in the definition files using the syntax for the [Apptainer definition files](https://apptainer.org/docs/user/main/definition_files.html). 
 
 > [!WARNING] 
-> The build process relies heavily on the [Project Configuration]. So before changing the build process in the definition files, make sure to check the configuration files in the `config` directory.
+> The build process relies heavily on the [Project Configuration](config.md). So before changing the build process in the definition files, make sure to check the configuration files in the `config` directory.
 
 ## Building the image
 
