@@ -3,17 +3,16 @@
 # Function to print the usage information for this script
 print_usage() {
     cat <<EOF
-Usage: bash transfer_image.sh <operation> [OPTIONS]
+Usage: bash transfer_image <operation> [OPTIONS]
 
-This script transfers a RoboTour Singularity image between your local machine and the RCI server.
+This script transfers a project's Apptainer image between your local machine and the remote server.
 
 Operations:
-  upload:   Upload the image to the RCI server.
-  download: Download the image from the RCI server.
+  upload:   Upload the image to the remote server.
+  download: Download the image from the remote server.
 
 Options:
   -h, --help                 Show this help message and exit.
-  -u, --username <username>  Specify the username to use when connecting to the RCI server.
 EOF
 }
 
@@ -84,8 +83,8 @@ main() {
         echo
     fi
     
-    # Check SSH key existence or prompt for a password if not present
-    check_ssh_key_or_prompt_password
+    # Create a remote connection
+    create_remote_connection 
 
     echo 
     info_log "Checking the status of the local and remote image files..."

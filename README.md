@@ -1,5 +1,28 @@
 # CRAS Project Template
 
+# TODO: Install sshpass
+
+# Catkin config
+# push-url
+# na robotech:
+  gitlab:
+    push https
+    clone git
+  github:
+    push https
+    clone https
+
+# localne git 
+  gitlab:
+    push git
+    clone git
+  github:
+    push git
+    clone https
+
+# Anaconda
+
+
 This repository contains the template for the CRAS project. The template is used to create a new project that is based on the CRAS project structure. The project structure is defined in the [Repository structure](#repository-structure) section.
 
 ## Repository structure
@@ -35,6 +58,12 @@ The repository contains the following directories and files:
 - `scripts` - contains the scripts for building the container, running the container, and uploading the images to the remote server. More information 
   about the scripts can be found in the [Scripts documentation](docs/scripts.md).
 - `workspace` - contains the source code of the project.
+  
+## Requirements
+
+The project requires the following software to be installed:
+
+- [Apptainer]()
   
 ## How to use
 

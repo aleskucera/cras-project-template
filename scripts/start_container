@@ -1,17 +1,17 @@
 #!/bin/bash
-set -eo pipefail  # Exit immediately if a command fails and ensure errors in pipelines are caught
+# set -eo pipefail  # Exit immediately if a command fails and ensure errors in pipelines are caught
 
 # Function to print the usage information for this script
 print_usage() {
     cat <<EOF
-Usage: bash start_container.sh [OPTIONS]
+Usage: bash start_container [OPTIONS]
 
-This script starts a RoboTour Apptainer container. It performs the following steps:
+This script starts a project's Apptainer container. It performs the following steps:
 
-  1. Validates the environment and dependencies.
-  2. Checks if the necessary Apptainer image is available.
-  3. Sets up the environment variables required for the container.
-  4. Launches the Apptainer container with appropriate configurations.
+    1. Checks if Apptainer is installed and installs it if not.
+    2. Checks if the specified image file exists and downloads it if not.
+    3. Warns the user if NVIDIA GPU support is not enabled.
+    4. Starts the Apptainer container with the specified image file.
 
 Options:
   -h, --help    Show this help message and exit.
@@ -89,8 +89,7 @@ main() {
 
         # If the user agrees to download the image, ask for the username and download it
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            read_input "Enter the username for the remote server ${PINK}${REMOTE_SERVER}${RESET}: "
-            bash "${SCRIPTS_DIR}/transfer_image.sh" download -u "$REPLY"
+            bash "${SCRIPTS_DIR}/transfer_image" download
         else
             exit 1  # Exit if the user chooses not to download the image
         fi

@@ -3,7 +3,8 @@
 # ============= START: PROJECT SPECIFIC VARIABLES =============
 
 # Project name with lowercase letters and no spaces
-IMAGE_NAME="base_image"
+IMAGE_NAME="cras_project"
+PROJECT_NAME="CRAS Project"
 
 # Remote server variables for storing images
 REMOTE_SERVER="login3.rci.cvut.cz"
@@ -18,6 +19,7 @@ REMOTE_IMAGES_PATH="/mnt/data/vras/data/robotour2024/images"
 export APPTAINERENV_USER="${USER}"
 export APPTAINERENV_DISPLAY="${DISPLAY}"
 export APPTAINERENV_XAUTHORITY="${XAUTHORITY}"
+export APPTAINERENV_PROJECT_NAME=${PROJECT_NAME}
 
 # -------- End: Environment variables --------
 # -------- Start: Hardware specific paths --------
@@ -26,7 +28,7 @@ export APPTAINERENV_XAUTHORITY="${XAUTHORITY}"
 PROJECT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")/..")
 
 # Function to build common mount paths dynamically
-build_common_mount_paths() {
+common_mount_paths() {
     local mount_paths=""
 
     # Bind the X11 socket
@@ -43,7 +45,7 @@ build_common_mount_paths() {
 }
 
 # Function to build AMD64 specific mount paths dynamically
-build_amd64_mount_paths() {
+amd64_mount_paths() {
     local mount_paths=""
 
     # Find the VS Code if it exists
@@ -58,14 +60,14 @@ build_amd64_mount_paths() {
 }
 
 # Function to build ARM64 specific paths dynamically
-build_arm64_mount_paths() {
+arm64_mount_paths() {
     local mount_paths=""
 
     echo "$mount_paths"
 }
 
 # Function to build Jetson specific paths dynamically
-build_jetson_mount_paths() {
+jetson_mount_paths() {
     local mount_paths="/usr/local/cuda-10.2"
 
     # Only find and append mount_paths if they exist
@@ -98,9 +100,9 @@ format_paths() {
 
 # Define hardware-specific configurations
 declare -A MOUNT_PATHS
-MOUNT_PATHS["amd64"]="$(format_paths "$(build_common_mount_paths)"),$(format_paths "$(build_amd64_mount_paths)")"
-MOUNT_PATHS["arm64"]="$(format_paths "$(build_common_mount_paths)"),$(format_paths "$(build_arm64_mount_paths)")"
-MOUNT_PATHS["jetson"]="$(format_paths "$(build_common_mount_paths)"),$(format_paths "$(build_jetson_mount_paths)")"
+MOUNT_PATHS["amd64"]="$(format_paths "$(common_mount_paths)"),$(format_paths "$(amd64_mount_paths)")"
+MOUNT_PATHS["arm64"]="$(format_paths "$(common_mount_paths)"),$(format_paths "$(arm64_mount_paths)")"
+MOUNT_PATHS["jetson"]="$(format_paths "$(common_mount_paths)"),$(format_paths "$(jetson_mount_paths)")"
 
 # -------- End: Hardware specific bind mount_paths --------
 

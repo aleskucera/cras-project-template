@@ -36,5 +36,26 @@ The `packages.pip` file should contain the names of the packages that will be in
 
 ## `packages.repos`
 
-The `packages.repos` file is used to define the repositories that will be added to the container using [vcstool](https://github.com/dirk-thomas/vcstool). The syntax of the file is the same as the syntax defined by the `vcstool` tool.
+The `packages.repos` file is used to define the repositories that will be added to the container using [vcstool](https://github.com/dirk-thomas/vcstool). The syntax of the file is the same as the syntax defined by the `vcstool` tool. 
+
+### Package protocols
+
+In the `url` field of the `packages.repos` file, you can enter the URL startig with `https` or `git`. This is important, because each url will be cloned using the appropriate protocol. When using the `https` protocol, the private repositories (which are all repositories in FEL GitLab) need the username and password to be entered. Because a lot of people don't have password for their GitLab account, it is recommended to use the `git` protocol for the repositories that are cloned from the FEL GitLab. The opposite is true for the GitHub repositories, where the `https` protocol is recommended.
+
+Here is the summary of the protocols that should be used for pushing and pulling the repositories:
+
+1. #### Robots:
+    - **gitlab**:
+        - `push` https
+        - `pull` git
+    - **github**:
+        - `push` https
+        - `pull` https
+2. #### Local Computers:
+    - **gitlab**:
+        - `push` git
+        - `pull` git
+    - **github**:
+        - `push` git
+        - `pull` https
 

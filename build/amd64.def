@@ -1,19 +1,23 @@
 Bootstrap: docker
 FROM: ghcr.io/sloretz/ros:noetic-simulators-osrf
 
-%help
-   This is a custom Apptainer image for CTU-VRAS.
+%arguments
+    SSH_DIR=/root/.ssh
 
 %setup
     mkdir -p ${APPTAINER_ROOTFS}/.env
     mkdir -p ${APPTAINER_ROOTFS}/.tmp
+    mkdir -p ${APPTAINER_ROOTFS}/root/.ssh
     mkdir -p ${APPTAINER_ROOTFS}/.config
+    mkdir -p ${APPTAINER_ROOTFS}/.workspace/src
     mkdir -p ${APPTAINER_ROOTFS}/.custom_commands
 
 %files
     ../env/* /.env/
     ../config/* /.config/
     ../commands/* /.custom_commands/
+    {{ SSH_DIR }}/* /root/.ssh/
+    install_repos.sh /.tmp/
 
 %environment
     export PATH="/.custom_commands:${PATH}"
@@ -37,15 +41,15 @@ FROM: ghcr.io/sloretz/ros:noetic-simulators-osrf
     # Make all custom commands executable
     chmod +x /.custom_commands/*
 
-    # Install custom repositories
-    cd /.tmp
-    vcs import < "/.config/packages.repos"
-
-    # Install rosdep dependencies
-    rosdep update
-    rosdep install --from-paths /.tmp --ignore-src -y
-    rm -rf /.tmp
+    # Install ROS packages
+    bash /.tmp/install_repos.sh
 
     # Configure tmux and bash
     ln -fs $BASHRC /etc/bash.bashrc
     ln -fs $TMUX_CONF /etc/tmux.conf
+
+    rm -rf /.tmp
+    rm -rf /root/.ssh
+
+%help
+   This is a custom Apptainer image for CTU-VRAS.

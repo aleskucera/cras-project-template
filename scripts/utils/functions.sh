@@ -26,13 +26,18 @@ read_input() {
     read -r REPLY
 }
 
-
-
-
 # ============= END: LOGGING =============
 
-check_ssh_key_or_prompt_password() {
-	local attempt=0
+create_remote_connection() {
+    # Check if sshpass is installed
+    install_sshpass
+    
+    # Ask user if they want to specify a user for the remote server or use the current user
+    info_log "Creating a connection to ${PINK}${REMOTE_SERVER}${RESET}..."
+    read_input "Specify a remote username or press ${YELLOW}Enter${RESET} to use the current user: "
+    USERNAME="${REPLY:-$(whoami)}"
+
+    local attempt=0
 	local max_attempts=3
     
     info_log "Attempting to connect to ${PINK}${USERNAME}@${REMOTE_SERVER}${RESET} using SSH key..."
@@ -89,6 +94,20 @@ is_apptainer_installed() {
     command -v apptainer &>/dev/null
 }
 
+install_sshpass() {
+    if ! is_online; then
+        error_log "You are offline. Please connect to the internet and try again."
+        exit 1
+    fi
+
+    if ! command -v sshpass &>/dev/null
+    then
+        info_log "Installing sshpass..."
+        sudo apt-get -y update
+        sudo apt-get -y install sshpass
+    fi
+}
+
 install_apptainer() {
     if ! is_online; then
         error_log "You are offline. Please connect to the internet and try again."
@@ -104,6 +123,16 @@ install_apptainer() {
     sudo apt -y install software-properties-common
     sudo add-apt-repository -y ppa:apptainer/ppa
     sudo apt-get -y install apptainer-suid
+}
+
+check_anaconda() {    
+    source $HOME/.bashrc
+
+    if [[ -n "$CONDA_PREFIX" ]]; then
+        error_log "It appears that your ~/.bashrc file includes the Conda initialization script."
+        error_log "Please modify it to prevent it from loading within the container."
+        exit 1
+    fi
 }
 
 get_remote_image_time() {
@@ -170,6 +199,8 @@ compare_times() {
 
 image_exists() {
     local location="$1"
+
+    install_sshpass
     
     if [ "$location" == "remote" ]; then
         if [ -n "$SSH_PASSWORD" ]; then
@@ -189,6 +220,8 @@ image_files_exist() {
     local location="$1"
     local image_exists=false
     local metadata_exists=false
+
+    install_sshpass
     
     if [ "$location" == "remote" ]; then
         if [ -n "$SSH_PASSWORD" ]; then
@@ -223,6 +256,8 @@ transfer_image() {
     local operation="$1"
     local source=""
     local destination=""
+
+    install_sshpass
 
     if [ "$operation" == "upload" ]; then
         src_image="${IMAGE_FILE}"

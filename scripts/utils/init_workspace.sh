@@ -28,15 +28,19 @@ init_workspace() {
   fi
 }
 
-update_packages() {
+fetch_packages() {
   if ! is_online; then
-    warn_log "You do not seem to be online. Not updating the packages."
+    warn_log "You do not seem to be online. Not fetching the packages."
     return
   fi
 
   # Update the repositories specified in the packages.repos file
   cd "${WORKSPACE_DIR}/src" || exit 1
-  vcs import < "/.config/packages.repos"
+
+  # Fetch the packages
+  info_log "Fetching the packages..."
+  vcs custom --git --args fetch --all 2>/dev/null
+  vcs status
 }
 
 main() {
@@ -47,12 +51,18 @@ main() {
     exit 1
   fi
 
+  # Check if the conda is in ~/.bashrc
+  check_anaconda
+
   # Update the packages
   echo
-  echo "====================== UPDATING PACKAGES ======================"
+  echo "====================== FETCHING PACKAGES ======================"
   echo
 
-  update_packages
+  fetch_packages
+
+  echo 
+  info_log "If you want to update the workspace packages, run the ${YELLOW}update_workspace${RESET} command."
 
   echo
   echo "==============================================================="

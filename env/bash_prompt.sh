@@ -103,7 +103,7 @@ function update_prompt() {
     local git_info="\$(prompt_git \"\[${white}\] on \[${violet}\]\" \"\[${blue}\]\")"  # Dynamically get Git info
     PS1="\[\033]0;\W\007\]"                         # working directory base name
     PS1+="\[${bold}\]\n"                            # newline
-    PS1+="\[${cyan}\][VRAS Apptainer] "             # Conda environment name, defaults to 'base'
+    PS1+="\[${cyan}\][${PROJECT_NAME}] "            # project name
     PS1+="\[${userStyle}\]\u"                       # username
     PS1+="\[${white}\] at "
     PS1+="\[${hostStyle}\]\h"                       # host

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Remember the current directory
+CURR_DIR=$(pwd)
+
+cd "${WORKSPACE_DIR}" || exit 1
+vcs import < "/.config/packages.repos"
+cd "${CURR_DIR}" || exit 1

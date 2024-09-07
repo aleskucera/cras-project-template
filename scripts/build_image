@@ -1,12 +1,12 @@
 #!/bin/bash
-set -eo pipefail  # Exit immediately if a command exits with a non-zero status, and ensure errors in pipelines are caught
+# set -eo pipefail  # Exit immediately if a command exits with a non-zero status, and ensure errors in pipelines are caught
 
 # Function to print the usage guide for the script
 print_usage() {
     cat <<EOF
 Usage: bash build_image.sh [OPTIONS]
 
-This script builds an apptainer image based on a definition file located in the build directory.
+This script builds an project's Apptainer image based on a definition file located in the build directory.
 
 Options:
   -h, --help    Show this help message and exit.
@@ -60,10 +60,10 @@ build_image() {
         export APPTAINER_TMPDIR="${HOME}/.apptainer_tmp"
         export APPTAINER_CACHEDIR="${HOME}/.apptainer_cache"
         # Build the image with Nvidia GPU support, logging output to the log file
-        sudo -E apptainer build --nv "${IMAGE_FILE}" "${DEFINITION_FILE}" 2>&1 | tee "${BUILD_LOG_FILE}"
+        sudo -E apptainer build --nv --build-arg SSH_DIR="${HOME}/.ssh" "${IMAGE_FILE}" "${DEFINITION_FILE}" 2>&1 | tee "${BUILD_LOG_FILE}"
     else
         # Build the image with Nvidia GPU support, logging output to the log file
-        sudo apptainer build --nv "${IMAGE_FILE}" "${DEFINITION_FILE}" 2>&1 | tee "${BUILD_LOG_FILE}"
+        sudo apptainer build --nv --build-arg SSH_DIR="${HOME}/.ssh" "${IMAGE_FILE}" "${DEFINITION_FILE}" 2>&1 | tee "${BUILD_LOG_FILE}"
     fi
 }
 
