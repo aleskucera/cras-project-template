@@ -26,6 +26,10 @@ cras_project() {
             # Upload the image
             "${SCRIPTS_DIR}/transfer_image" "upload" "$@"
             ;;
+        create_overlay)
+            # Create an overlay
+            "${SCRIPTS_DIR}/create_overlay" "$@"
+            ;;
         *)
             echo "Invalid option: $option"
             ;;
@@ -38,7 +42,7 @@ _cras_project_autocomplete() {
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="build_image start_container download_image upload_image"
+    opts="build_image start_container download_image upload_image create_overlay"
 
     # Autocomplete for the main options
     if [[ ${COMP_CWORD} -eq 1 ]]; then

@@ -1,0 +1,37 @@
+#!/bin/bash
+
+
+# Source the variables and utility functions from external scripts
+source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/utils/vars.sh"
+source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/utils/functions.sh"
+
+main() {
+    echo
+    echo "================ CREATING APPTAINER OVERLAY ================="
+    echo
+
+    # Check if Apptainer is installed, and install it if not
+    if ! is_apptainer_installed; then
+        warn_log "Apptainer is not installed. Please install it first."
+        read_input "Do you want to install ${CYAN}Apptainer${RESET} now? (y/N) " response
+
+        # If the user agrees to install Apptainer, run the installation script
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            install_apptainer 
+        else
+            exit 1  # Exit if the user chooses not to install Apptainer
+        fi
+    fi
+
+    # Ask the user for the overlay name
+    read_input "Enter the name of the overlay (default: overlay): "
+    overlay_name="${REPLY:-overlay}.img"
+
+    # Ask the user for the overlay size
+    read_input "Enter the size of the overlay in MB (default: 1024): "
+    overlay_size="${REPLY:-1024}"
+
+    apptainer overlay create --size ${overlay_size} ${OVERLAYS_DIR}/${overlay_name}
+}
+
+main "$@"

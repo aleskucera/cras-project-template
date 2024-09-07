@@ -4,6 +4,9 @@ images/*
 logs/*
 !logs/.gitkeep
 
+overlays/*
+!overlays/.gitkeep
+
 # Ignore everything in the workspace folder but the src directory
 workspace/*
 !workspace/src/

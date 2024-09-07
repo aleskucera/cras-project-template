@@ -23,6 +23,7 @@ BUILD_DIR=$(realpath "$PROJECT_DIR/build")
 CONFIG_DIR=$(realpath "$PROJECT_DIR/config")
 IMAGES_DIR=$(realpath "$PROJECT_DIR/images")
 SCRIPTS_DIR=$(realpath "$PROJECT_DIR/scripts")
+OVERLAYS_DIR=$(realpath "$PROJECT_DIR/overlays")
 COMMANDS_DIR=$(realpath "$PROJECT_DIR/commands")
 WORKSPACE_DIR=$(realpath "$PROJECT_DIR/workspace")
 
@@ -42,6 +43,10 @@ WORKSPACE_SETUP_FILE="${WORKSPACE_DIR}/devel/setup.bash"
 # Remote server
 REMOTE_USERNAME="${REMOTE_USERNAME:-$(whoami)}"
 SSH_PASSWORD=""
+
+# Overlays
+OVERLAY_ARG=""
+OVERLAY_IMAGE_FILE=""
 
 if tput setaf 1 &>/dev/null; then
     tput sgr0 # reset colors

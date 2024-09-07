@@ -13,7 +13,7 @@ repositories:
     type: git
     url: https://github.com/vras-robotour/image_segmentation.git
     version: main
-  cras_system_monitor:
-    type: git
-    url: git@gitlab.fel.cvut.cz:cras/subt/common/cras_system_monitor.git
-    version: master
+#  cras_system_monitor:
+#    type: git
+#    url: git@gitlab.fel.cvut.cz:cras/subt/common/cras_system_monitor.git
+#    version: master

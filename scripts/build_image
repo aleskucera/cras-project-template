@@ -101,7 +101,20 @@ main() {
 
     # Log the start of the image build process
     info_log "Building image ${PINK}$(basename "${IMAGE_FILE}")${RESET} based on ${PINK}$(basename "${DEFINITION_FILE}")${RESET}."
+    
+    # Check if Apptainer is installed, and install it if not
+    if ! is_apptainer_installed; then
+        warn_log "Apptainer is not installed. Please install it first."
+        read_input "Do you want to install ${CYAN}Apptainer${RESET} now? (y/N) " response
 
+        # If the user agrees to install Apptainer, run the installation script
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            install_apptainer 
+        else
+            exit 1  # Exit if the user chooses not to install Apptainer
+        fi
+    fi   
+     
     # If the image file already exists, prompt the user to remove or back it up
     if [ -e "${IMAGE_FILE}" ]; then
         remove_image_or_create_backup

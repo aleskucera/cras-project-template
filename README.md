@@ -63,8 +63,11 @@ The repository contains the following directories and files:
 
 The project requires the following software to be installed:
 
-- [Apptainer]()
-  
+- [Apptainer](https://apptainer.org/) - used to build and run the container.
+- [SSHPass](https://www.cyberciti.biz/faq/noninteractive-shell-script-ssh-password-provider/) - used to provide the password for the remote server.
+
+Both will be installed automatically when needing them.
+
 ## How to use
 
 To use the project, follow these steps:

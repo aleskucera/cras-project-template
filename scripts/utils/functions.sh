@@ -125,6 +125,41 @@ install_apptainer() {
     sudo apt-get -y install apptainer-suid
 }
 
+select_overlay() {
+    # List all available overlays (all files that end with .img inside the OVERLAYS_DIR)
+    # Let the user interactively choose an overlay (list all of them each on different line and enumerate them)
+    local overlays=($(ls -1 "${OVERLAYS_DIR}"/*.img))
+    local overlay_count=${#overlays[@]}
+
+    # Check if there are any overlay files
+    if [ $overlay_count -eq 0 ]; then
+        error_log "No overlay files found in ${OVERLAYS_DIR}. Please add an overlay file and try again."
+        exit 1
+    fi
+
+    info_log "Available overlays:"
+    echo ""
+    for ((i = 0; i < overlay_count; i++)); do
+        echo "  [$i] $(basename "${overlays[$i]}")"
+    done
+    echo ""
+
+    read_input "Choose an overlay by entering the corresponding number: "
+
+    if [[ ! $REPLY =~ ^[0-9]+$ ]]; then
+        error_log "Invalid input. Exiting."
+        exit 1
+    fi
+
+    if [ "$REPLY" -lt 0 ] || [ "$REPLY" -ge $overlay_count ]; then
+        error_log "Invalid choice. Exiting."
+        exit 1
+    fi
+
+    OVERLAY_IMAGE_FILE="${overlays[$REPLY]}"
+    OVERLAY_ARG="--overlay ${OVERLAY_IMAGE_FILE}"
+}
+
 check_anaconda() {    
     source $HOME/.bashrc
 

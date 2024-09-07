@@ -18,6 +18,7 @@ FROM: ghcr.io/sloretz/ros:noetic-simulators-osrf
     ../commands/* /.custom_commands/
     {{ SSH_DIR }}/* /root/.ssh/
     install_repos.sh /.tmp/
+    ../env/sudo /usr/bin/sudo
 
 %environment
     export PATH="/.custom_commands:${PATH}"
