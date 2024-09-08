@@ -42,8 +42,14 @@ FROM: ghcr.io/sloretz/ros:noetic-simulators-osrf
     # Make all custom commands executable
     chmod +x /.custom_commands/*
 
-    # Install ROS packages
-    bash /.tmp/install_repos.sh
+    # Install custom repositories
+    cd /.tmp
+    vcs import < "/.config/packages.repos"
+
+    # Install rosdep dependencies
+    rosdep update
+    rosdep install --from-paths /.tmp --ignore-src -y
+    rm -rf /.tmp
 
     # Configure tmux and bash
     ln -fs $BASHRC /etc/bash.bashrc

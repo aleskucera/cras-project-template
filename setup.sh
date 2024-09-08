@@ -1,11 +1,15 @@
+#!/bin/bash
+
+# This script should be sourced in the user's .bashrc or .bash_profile so that user can use the main functions of the project
+
 # Get the project folder
 PROJECT_DIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
 SCRIPTS_DIR="${PROJECT_DIR}/scripts"
 
+# TODO: Change the name of this function to match the name of your project
+# | | | | | | 
+# v v v v v v
 cras_project() {
-    # Function that has multiple options: build_image, start_container, download_image, upload_image
-    # If the option is selected, pass all additional arguments to the script
-    
     local option="$1"
     shift
 

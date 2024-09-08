@@ -6,7 +6,11 @@ source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/vars.sh"
 # ============= START: LOGGING =============
 
 debug_log() {
-    echo -e "${VIOLET}[DEBUG]${RESET} $1"
+    if [ "$DEBUG_MODE" != "true" ]; then
+        return
+    fi
+
+    echo -e "${VIOLET}[DEBUG]${RESET} $1" >&2
 }
 
 info_log() {
@@ -29,6 +33,8 @@ read_input() {
 # ============= END: LOGGING =============
 
 create_remote_connection() {
+    debug_log "Creating a connection to the remote server..."
+
     # Check if sshpass is installed
     install_sshpass
     
@@ -71,30 +77,38 @@ create_remote_connection() {
 	done
 
 	error_log "Maximum number of attempts exceeded. Exiting."
-	return 1
+	exit 1
 }
 
 is_online() {
+    debug_log "Checking internet connection..."
+
     # Try to fetch headers from a reliable website
     curl -s --head http://www.google.com/ > /dev/null 2>&1
 
     # Check the exit status and return true/false
     if [ $? -eq 0 ]; then
+        debug_log "Online."
         return 0  # true (online)
     else
+        debug_log "Offline."
         return 1  # false (offline)
     fi
 }
 
 in_apptainer() {
+    debug_log "Checking if inside the apptainer container..."
 	[ -n "$APPTAINER_CONTAINER" ]
 }
 
 is_apptainer_installed() {
+    debug_log "Checking if apptainer is installed..."
     command -v apptainer &>/dev/null
 }
 
 install_sshpass() {
+    debug_log "Checking if sshpass is installed..."
+
     if ! is_online; then
         error_log "You are offline. Please connect to the internet and try again."
         exit 1
@@ -109,6 +123,8 @@ install_sshpass() {
 }
 
 install_apptainer() {
+    debug_log "Checking if apptainer is installed..."
+
     if ! is_online; then
         error_log "You are offline. Please connect to the internet and try again."
         exit 1
@@ -119,6 +135,7 @@ install_apptainer() {
         exit 0
     fi
 
+    info_log "Installing apptainer..."
     sudo apt-get -y update
     sudo apt -y install software-properties-common
     sudo add-apt-repository -y ppa:apptainer/ppa
@@ -126,6 +143,8 @@ install_apptainer() {
 }
 
 select_overlay() {
+    debug_log "Selecting an overlay..."
+
     # List all available overlays (all files that end with .img inside the OVERLAYS_DIR)
     # Let the user interactively choose an overlay (list all of them each on different line and enumerate them)
     local overlays=($(ls -1 "${OVERLAYS_DIR}"/*.img))
@@ -145,6 +164,7 @@ select_overlay() {
     echo ""
 
     read_input "Choose an overlay by entering the corresponding number: "
+    debug_log "User input: $REPLY"
 
     if [[ ! $REPLY =~ ^[0-9]+$ ]]; then
         error_log "Invalid input. Exiting."
@@ -158,9 +178,14 @@ select_overlay() {
 
     OVERLAY_IMAGE_FILE="${overlays[$REPLY]}"
     OVERLAY_ARG="--overlay ${OVERLAY_IMAGE_FILE}"
+
+    debug_log "Selected overlay: ${OVERLAY_IMAGE_FILE}"
+    debug_log "Overlay argument: ${OVERLAY_ARG}"
 }
 
 check_anaconda() {    
+    debug_log "Checking if Conda is in ~/.bashrc..."
+
     source $HOME/.bashrc
 
     if [[ -n "$CONDA_PREFIX" ]]; then
@@ -171,76 +196,52 @@ check_anaconda() {
 }
 
 get_remote_image_time() {
+    debug_log "Getting the remote image creation time..."
+
     local creation_time
     if [ -n "$SSH_PASSWORD" ]; then
+        debug_log "Using sshpass to connect to the remote server..."
         creation_time=$(sshpass -p "${SSH_PASSWORD}" ssh -t ${USERNAME}@${REMOTE_SERVER} \
             "cat ${REMOTE_METADATA_FILE} 2>/dev/null | jq -r '.created_at // empty'" 2>/dev/null)
+        debug_log "Remote image creation time (unformatted): $creation_time"
     else
+        debug_log "Using SSH key to connect to the remote server..."
         creation_time=$(ssh -t ${USERNAME}@${REMOTE_SERVER} \
             "cat ${REMOTE_METADATA_FILE} 2>/dev/null | jq -r '.created_at // empty'" 2>/dev/null)
+        debug_log "Remote image creation time (unformatted): $creation_time"
     fi
     # Trim trailing whitespace (including newline characters)
     creation_time=$(echo "${creation_time}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+    debug_log "Remote image creation time (formatted): $creation_time"
 
     echo "${creation_time}"
 }
 
 get_local_image_time() {
+    debug_log "Getting the local image creation time..."
+
     local creation_time=$(cat "${METADATA_FILE}" 2>/dev/null |
         jq -r '.created_at // empty')
+
+    debug_log "Local image creation time (unformatted): $creation_time"
 
     echo "${creation_time}"
 }
 
-compare_times() {
-    local operation="$1"
-
-    local local_image_exists=$(image_exists "local")
-    local remote_image_exists=$(image_exists "remote")
-
-    if [ "$local_image_exists" == "false" ] && [ "$operation" == "upload" ]; then
-        error_log "There is no local image to upload. Exiting."
-        exit 1
-    fi
-
-    if [ "$remote_image_exists" == "false" ] && [ "$operation" == "download" ]; then
-        error_log "There is no remote image to download. Exiting."
-        exit 1
-    fi
-
-    local local_image_time=$(get_local_image_time)
-    local remote_image_time=$(get_remote_image_time)
-
-    local local_timestamp=$(date -d "${local_image_time}" +%s 2>/dev/null)
-    local remote_timestamp=$(date -d "${remote_image_time}" +%s 2>/dev/null)
-
-    if [ -z "$local_image_time" ]; then 
-        info_log "Local image does not exist. Downloading a new one." 
-    elif [ -z "$remote_image_time" ]; then
-        info_log "Remote image does not exist. Uploading a new one."
-    elif [[ "$local_timestamp" -eq "$remote_timestamp" ]]; then  # Times are equal
-        read_input "The remote image was created at the same time (${local_image_time}) as the local one. Do you want to continue? [y/N] "
-    elif [[ "$local_timestamp" -gt "$remote_timestamp" ]]; then # Local time is strictly newer
-        read_input "The local image was created more recently (${local_image_time}) than the remote one (${remote_image_time}). Do you want to continue? [y/N] "
-    else # Remote time is strictly newer
-        read_input "The remote image (${remote_image_time}) was created more recently than the local one (${local_image_time}). Do you want to continue? [y/N] "
-    fi
-
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        info_log "Aborting the $operation."
-        exit 0
-    fi
-}
-
 image_exists() {
+    debug_log "Checking if the image file exists..."
+
     local location="$1"
+    debug_log "Location: $location"
 
     install_sshpass
     
     if [ "$location" == "remote" ]; then
         if [ -n "$SSH_PASSWORD" ]; then
+            debug_log "Using sshpass to connect to the remote server..."
             sshpass -p "${SSH_PASSWORD}" ssh -t ${USERNAME}@${REMOTE_SERVER} "test -f ${REMOTE_IMAGE_FILE}" 2>/dev/null
         else
+            debug_log "Using SSH key to connect to the remote server..."
             ssh -t ${USERNAME}@${REMOTE_SERVER} "test -f ${REMOTE_IMAGE_FILE}" 2>/dev/null
         fi
     elif [ "$location" == "local" ]; then
@@ -252,17 +253,23 @@ image_exists() {
 }
 
 image_files_exist() {
+    debug_log "Checking if the image and metadata files exist..."
+
     local location="$1"
     local image_exists=false
     local metadata_exists=false
+
+    debug_log "Location: $location"
 
     install_sshpass
     
     if [ "$location" == "remote" ]; then
         if [ -n "$SSH_PASSWORD" ]; then
+            debug_log "Using sshpass to connect to the remote server..."
             sshpass -p "${SSH_PASSWORD}" ssh -t ${USERNAME}@${REMOTE_SERVER} "test -f ${REMOTE_IMAGE_FILE}" 2>/dev/null && image_exists=true
             sshpass -p "${SSH_PASSWORD}" ssh -t ${USERNAME}@${REMOTE_SERVER} "test -f ${REMOTE_METADATA_FILE}" 2>/dev/null && metadata_exists=true
         else
+            debug_log "Using SSH key to connect to the remote server..."
             ssh -t ${USERNAME}@${REMOTE_SERVER} "test -f ${REMOTE_IMAGE_FILE}" 2>/dev/null && image_exists=true
             ssh -t ${USERNAME}@${REMOTE_SERVER} "test -f ${REMOTE_METADATA_FILE}" 2>/dev/null && metadata_exists=true
         fi
@@ -273,6 +280,9 @@ image_files_exist() {
         echo "Invalid location: $location"
         return 1
     fi
+
+    debug_log "Image file exists: $image_exists"
+    debug_log "Metadata file exists: $metadata_exists"
 
     # Determine the status based on what exists
     if $image_exists && $metadata_exists; then
@@ -288,9 +298,13 @@ image_files_exist() {
 
 
 transfer_image() {
+    debug_log "Transferring the image file..."
+
     local operation="$1"
     local source=""
     local destination=""
+
+    debug_log "Operation: $operation"
 
     install_sshpass
 
@@ -309,11 +323,76 @@ transfer_image() {
         return 1
     fi
 
+    debug_log "Source image: $src_image"
+    debug_log "Source metadata: $src_metadata"
+    debug_log "Destination image: $dest_image"
+    debug_log "Destination metadata: $dest_metadata"
+
     if [ -n "$SSH_PASSWORD" ]; then
+        debug_log "Using sshpass to transfer the files..."
         rsync -zP --rsh="sshpass -p ${SSH_PASSWORD} ssh" "${src_image}" "${dest_image}"
         rsync -zP --rsh="sshpass -p ${SSH_PASSWORD} ssh" "${src_metadata}" "${dest_metadata}"
     else
+        debug_log "Using SSH key to transfer the files..."
         rsync -zP "${src_image}" "${dest_image}"
         rsync -zP "${src_metadata}" "${dest_metadata}"
     fi
+}
+
+debug_variables() {
+
+    echo ""
+    echo "==================== DEBUGGING VARIABLES ===================="
+    echo ""
+
+    # Debug main variables
+    debug_log "${BOLD}Main variables:${RESET}"
+    debug_log "IMAGE_NAME: $IMAGE_NAME"
+    debug_log "PROJECT_NAME: $PROJECT_NAME"
+    echo ""
+    
+    # Debug remote server
+    debug_log "${BOLD}Remote server:${RESET}"
+    debug_log "REMOTE_SERVER: $REMOTE_SERVER"
+    debug_log "REMOTE_IMAGES_PATH: $REMOTE_IMAGES_PATH"
+    debug_log "REMOTE_USERNAME: $REMOTE_USERNAME"
+    echo ""
+
+    # Debug hardware type
+    debug_log "${BOLD}Local hardware type:${RESET}"
+    debug_log "HARDWARE_TYPE: $HARDWARE_TYPE"
+    echo ""
+
+    # Debug project paths
+    debug_log "${BOLD}Project paths:${RESET}"
+    debug_log "PROJECT_DIR: $PROJECT_DIR"
+    debug_log "ENV_DIR: $ENV_DIR"
+    debug_log "LOGS_DIR: $LOGS_DIR"
+    debug_log "BUILD_DIR: $BUILD_DIR"
+    debug_log "CONFIG_DIR: $CONFIG_DIR"
+    debug_log "IMAGES_DIR: $IMAGES_DIR"
+    debug_log "SCRIPTS_DIR: $SCRIPTS_DIR"
+    debug_log "OVERLAYS_DIR: $OVERLAYS_DIR"
+    debug_log "COMMANDS_DIR: $COMMANDS_DIR"
+    debug_log "WORKSPACE_DIR: $WORKSPACE_DIR"
+    echo ""
+
+    # Debug file paths
+    debug_log "${BOLD}File paths:${RESET}"
+    debug_log "IMAGE_FILE_NAME: $IMAGE_FILE_NAME"
+    debug_log "METADATA_FILE_NAME: $METADATA_FILE_NAME"
+    debug_log "IMAGE_FILE: $IMAGE_FILE"
+    debug_log "METADATA_FILE: $METADATA_FILE"
+    debug_log "REMOTE_IMAGE_FILE: $REMOTE_IMAGE_FILE"
+    debug_log "REMOTE_METADATA_FILE: $REMOTE_METADATA_FILE"
+    debug_log "BUILD_LOG_FILE: $BUILD_LOG_FILE"
+    debug_log "DEFINITION_FILE: $DEFINITION_FILE"
+    debug_log "WORKSPACE_SETUP_FILE: $WORKSPACE_SETUP_FILE"
+    echo ""
+
+    # Debug mount paths
+    debug_log "${BOLD}Mount paths:${RESET}"
+    debug_log "MOUNT_PATHS - AMD64: ${MOUNT_PATHS["amd64"]}"
+    debug_log "MOUNT_PATHS - ARM64: ${MOUNT_PATHS["arm64"]}"
+    debug_log "MOUNT_PATHS - JETSON: ${MOUNT_PATHS["jetson"]}"
 }

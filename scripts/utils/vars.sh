@@ -48,6 +48,9 @@ SSH_PASSWORD=""
 OVERLAY_ARG=""
 OVERLAY_IMAGE_FILE=""
 
+# Debugging
+DEBUG_MODE=false
+
 if tput setaf 1 &>/dev/null; then
     tput sgr0 # reset colors
     BOLD=$(tput bold)
@@ -79,7 +82,5 @@ else
     YELLOW="\e[1;33m"
     PINK="\e[1;95m"
 fi
-
-
 
 # ============= END: SHARED VARIABLES =============

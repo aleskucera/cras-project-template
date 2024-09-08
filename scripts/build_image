@@ -4,12 +4,14 @@
 # Function to print the usage guide for the script
 print_usage() {
     cat <<EOF
-Usage: bash build_image.sh [OPTIONS]
+
+Usage: ./build_image.sh [OPTIONS]
 
 This script builds an project's Apptainer image based on a definition file located in the build directory.
 
 Options:
   -h, --help    Show this help message and exit.
+  --debug       Enable debug mode to print additional information.
 EOF
 }
 
@@ -83,6 +85,11 @@ main() {
             -h|--help)
             print_usage   # Display usage information
             exit 0        # Exit after printing help
+            ;;
+            --debug)
+            DEBUG_MODE=true  # Enable debug mode
+            debug_variables  # Print the variables in debug mode
+            shift            # Move to the next argument
             ;;
             *)
             print_usage   # Display usage information if an unknown option is provided

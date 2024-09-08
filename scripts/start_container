@@ -4,19 +4,15 @@ set -eo pipefail  # Exit immediately if a command fails and ensure errors in pip
 # Function to print the usage information for this script
 print_usage() {
     cat <<EOF
-Usage: bash start_container [OPTIONS]
+Usage: ./start_container [OPTIONS]
 
-This script starts a project's Apptainer container. It performs the following steps:
-
-    1. Checks if Apptainer is installed and installs it if not.
-    2. Checks if the specified image file exists and downloads it if not.
-    3. Warns the user if NVIDIA GPU support is not enabled.
-    4. Starts the Apptainer container with the specified image file.
+This script starts a project's Apptainer container.
 
 Options:
   -h, --help    Show this help message and exit.
   --nv          Enable NVIDIA GPU support in the container.
   --overlay     Enable overlay mode for the container.
+  --debug       Enable debug mode to print additional information.
 EOF
 }
 
@@ -36,21 +32,28 @@ main() {
     nvidia_gpu=""          # Default is no NVIDIA GPU support
     download_image=false   # Flag for image download, currently not used
     is_overlay_enabled=false  # Flag to check if overlay mode is enabled
+    debug=""
 
     # Parse command-line arguments
     while [[ $# -gt 0 ]]; do
         key="$1"
         case $key in
-            -h|--help)
-            print_usage  # Show usage information
-            exit 0
-            ;;
             --nv)
             nvidia_gpu="--nv"  # Enable NVIDIA GPU support
             shift # Move to the next argument
             ;;
             --overlay)
             is_overlay_enabled=true  # Enable overlay mode
+            shift # Move to the next argument
+            ;;
+            -h|--help)
+            print_usage  # Show usage information
+            exit 0
+            ;;
+            --debug)
+            DEBUG_MODE=true  # Enable debug mode
+            debug="--debug"
+            debug_variables # Print the variables in debug mode
             shift # Move to the next argument
             ;;
             *)
@@ -71,6 +74,8 @@ main() {
     echo "================ STARTING APPTAINER CONTAINER ================="
     echo
 
+    # debug_variables
+
     # Check if Apptainer is installed, and install it if not
     if ! is_apptainer_installed; then
         warn_log "Apptainer is not installed. Please install it first."
@@ -90,6 +95,7 @@ main() {
     fi
 
     # Check if the specified image file exists
+    debug_log "Checking if the image file ${PINK}${IMAGE_FILE}${RESET} exists."
     if [ ! -f "$IMAGE_FILE" ]; then
         warn_log "Image file ${PINK}${IMAGE_FILE}${RESET} does not exist."
         read_input "Do you want to download the image? [y/N] "
@@ -103,17 +109,17 @@ main() {
     fi
 
     # Warn the user if NVIDIA GPU support is not enabled
+    debug_log "Checking if NVIDIA GPU support is enabled."
     if [ "$nvidia_gpu" = "" ]; then
         warn_log "You are not using NVIDIA GPU support. If you have \n\
         \ran NVIDIA GPU, you can enable it by using the ${YELLOW}--nv${RESET} option."
     fi
 
     # Choose an overlay
+    debug_log "Checking if overlay mode is enabled."
     if [ "$is_overlay_enabled" = true ]; then
         select_overlay
     fi
-    echo "Overlay: ${OVERLAY_ARG}"
-
 
     export APPTAINERENV_WORKSPACE_DIR="${WORKSPACE_DIR}"
 
@@ -124,7 +130,7 @@ main() {
         info_log "Starting Apptainer container from image ${PINK}$(basename "${IMAGE_FILE}")${RESET}."
     fi
     
-    apptainer exec $nvidia_gpu $OVERLAY_ARG -B "${MOUNT_PATHS[$HARDWARE_TYPE]}" -e $IMAGE_FILE "${SCRIPTS_DIR}/utils/init_workspace.sh"
+    apptainer exec $nvidia_gpu $OVERLAY_ARG -B "${MOUNT_PATHS[$HARDWARE_TYPE]}" -e $IMAGE_FILE "${SCRIPTS_DIR}/utils/init_workspace.sh" $debug
 }
 
 # ============= END: Main =============

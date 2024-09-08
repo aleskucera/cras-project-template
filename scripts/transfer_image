@@ -3,16 +3,19 @@
 # Function to print the usage information for this script
 print_usage() {
     cat <<EOF
-Usage: bash transfer_image <operation> [OPTIONS]
+    
+Usage: ./transfer_image <operation> [OPTIONS]
 
-This script transfers a project's Apptainer image between your local machine and the remote server.
+This script transfers a project's Apptainer image between your 
+local machine and the remote server.
 
 Operations:
-  upload:   Upload the image to the remote server.
-  download: Download the image from the remote server.
+    upload:   Upload the image to the remote server.
+    download: Download the image from the remote server.
 
 Options:
-  -h, --help                 Show this help message and exit.
+    -h, --help                 Show this help message and exit.
+    --debug                    Enable debug mode to print additional information.
 EOF
 }
 
@@ -46,10 +49,10 @@ main() {
             print_usage  # Display usage information and exit
             exit 0
             ;;
-            -u|--username)
-            USERNAME="$2"  # Capture the username for the RCI server
-            shift # Past argument
-            shift # Past value
+            --debug)
+            DEBUG_MODE=true  # Enable debug mode
+            debug_variables  # Print the variables in debug mode
+            shift # Move to the next argument
             ;;
             *)
             print_usage  # Display usage information for unknown options

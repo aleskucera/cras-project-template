@@ -1,11 +1,45 @@
 #!/bin/bash
 
+# Function to print the usage information for this script
+print_usage() {
+    cat <<EOF
+
+Usage: ./create_overlay [OPTIONS]
+
+This script creates an Apptainer overlay for a project.
+
+Options:
+  -h, --help    Show this help message and exit.
+  --debug       Enable debug mode to print additional information.
+EOF
+}
 
 # Source the variables and utility functions from external scripts
 source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/utils/vars.sh"
 source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/utils/functions.sh"
 
 main() {
+    # Parse command-line arguments
+    while [[ $# -gt 0 ]]; do
+        key="$1"
+        case $key in
+            -h|--help)
+            print_usage  # Show usage information
+            exit 0
+            ;;
+            --debug)
+            DEBUG_MODE=true  # Enable debug mode
+            debug_variables # Print the variables in debug mode
+            shift # Move to the next argument
+            ;;
+            *)
+            print_usage  # Show usage information if an unknown option is encountered
+            handle_error "Unknown option: $1"
+            shift # Move to the next argument or value
+            ;;
+        esac
+    done
+
     echo
     echo "================ CREATING APPTAINER OVERLAY ================="
     echo
@@ -26,11 +60,14 @@ main() {
     # Ask the user for the overlay name
     read_input "Enter the name of the overlay (default: overlay): "
     overlay_name="${REPLY:-overlay}.img"
+    debug_log "Overlay name: ${overlay_name}"
 
     # Ask the user for the overlay size
     read_input "Enter the size of the overlay in MB (default: 1024): "
     overlay_size="${REPLY:-1024}"
+    debug_log "Overlay size: ${overlay_size}"
 
+    debug_log "Running: apptainer overlay create --size ${overlay_size} ${OVERLAYS_DIR}/${overlay_name}"
     apptainer overlay create --size ${overlay_size} ${OVERLAYS_DIR}/${overlay_name}
 }
 

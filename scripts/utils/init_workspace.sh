@@ -40,10 +40,89 @@ fetch_packages() {
   # Fetch the packages
   info_log "Fetching the packages..."
   vcs custom --git --args fetch --all 2>/dev/null
+
+  echo ""
+  info_log "Checking the status of the repositories..."
   vcs status
 }
 
+convert_url() {
+    local url=$1
+
+    # Check if the URL is a GitHub URL using HTTPS
+    if [[ $url =~ ^https://github\.com/(.*)\.git$ ]]; then
+        # Convert HTTPS to git protocol
+        echo "git@github.com:${BASH_REMATCH[1]}.git"
+
+    # Check if the URL is a GitLab URL using git protocol
+    elif [[ $url =~ ^git@gitlab\.fel\.cvut\.cz:(.*)\.git$ ]]; then
+        # Convert git protocol to HTTPS
+        echo "https://gitlab.fel.cvut.cz/${BASH_REMATCH[1]}.git"
+
+    else
+        error_log "Invalid pull URL format: $url"
+        return 1
+    fi
+}
+
+update_push_urls() {
+    local base_dir=$1
+
+    # Loop through all subdirectories in the base directory
+    info_log "Updating the push URLs of the repositories in $base_dir..."
+    for dir in "$base_dir"/*/; do
+        if [ -d "$dir/.git" ]; then
+            debug_log "Processing repository: $dir"
+
+            # Get the current pull URL (origin)
+            current_url=$(git -C "$dir" remote get-url origin)
+
+            if [ $? -eq 0 ]; then
+                debug_log "Fetch URL: $current_url"
+
+                # Convert the URL if it's valid
+                new_url=$(convert_url "$current_url")
+
+                if [ $? -eq 0 ]; then
+                    debug_log "Updating push URL: $new_url"
+
+                    # Set the new URL as the push URL
+                    git -C "$dir" remote set-url --push origin "$new_url"
+                    debug_log "Updated push URL for $dir"
+                else
+                    debug_log "Skipping invalid URL in $dir"
+                fi
+            else
+                debug_log "No valid remote 'origin' found for $dir"
+            fi
+        else
+            debug_log "$dir is not a git repository"
+        fi
+    done
+}
+
 main() {
+
+  # Parse command-line arguments
+  while [[ $# -gt 0 ]]; do
+      key="$1"
+      case $key in
+          -h|--help)
+          print_usage  # Show usage information
+          exit 0
+          ;;
+          --debug)
+          DEBUG_MODE=true  # Enable debug mode
+          shift # Move to the next argument or value
+          ;;
+          *)
+          print_usage  # Show usage information if an unknown option is encountered
+          handle_error "Unknown option: $1"
+          shift # Move to the next argument or value
+          ;;
+      esac
+  done
+
   # Check if the singularity container is running
   if [ "$APPTAINER_NAME" != "$(basename "${IMAGE_FILE}")" ]; then
     error_log "You are not inside the apptainer container. 
@@ -60,6 +139,8 @@ main() {
   echo
 
   fetch_packages
+
+  update_push_urls "${WORKSPACE_DIR}/src"
 
   echo 
   info_log "If you want to update the workspace packages, run the ${YELLOW}update_workspace${RESET} command."

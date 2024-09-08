@@ -100,9 +100,9 @@ format_paths() {
 
 # Define hardware-specific configurations
 declare -A MOUNT_PATHS
-MOUNT_PATHS["amd64"]="$(format_paths "$(common_mount_paths)"),$(format_paths "$(amd64_mount_paths)")"
-MOUNT_PATHS["arm64"]="$(format_paths "$(common_mount_paths)"),$(format_paths "$(arm64_mount_paths)")"
-MOUNT_PATHS["jetson"]="$(format_paths "$(common_mount_paths)"),$(format_paths "$(jetson_mount_paths)")"
+MOUNT_PATHS["amd64"]="$(format_paths "$(common_mount_paths),$(amd64_mount_paths)")"
+MOUNT_PATHS["arm64"]="$(format_paths "$(common_mount_paths),$(arm64_mount_paths)")"
+MOUNT_PATHS["jetson"]="$(format_paths "$(common_mount_paths),$(jetson_mount_paths)")"
 
 # -------- End: Hardware specific bind mount_paths --------
 
