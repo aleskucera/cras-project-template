@@ -2,24 +2,25 @@
 
 This repository contains a template for the CRAS project, designed to provide a well-structured starting point for new projects based on the CRAS architecture. The template utilizes the Apptainer container system to ensure consistent and reproducible environments for your development and deployment processes.
 
-## Documentation structure
+## Documentation Structure
 
 The documentation is structured as follows:
 
 - [CRAS Project Template](#cras-project-template)
-  - [Documentation structure](#documentation-structure)
-  - [Why use the containers?](#why-use-the-containers)
-  - [Repository structure](#repository-structure)
+  - [Documentation Structure](#documentation-structure)
+  - [Why Use the Containers?](#why-use-the-containers)
+  - [Repository Structure](#repository-structure)
   - [Requirements](#requirements)
-  - [How to create a project's container](#how-to-create-a-projects-container)
-    - [Configure the project](#configure-the-project)
-    - [Build the images](#build-the-images)
-    - [Upload the images to the remote server](#upload-the-images-to-the-remote-server)
-  - [How to use the project's container](#how-to-use-the-projects-container)
+  - [How to Create a Project's Container](#how-to-create-a-projects-container)
+    - [Configure the Project](#configure-the-project)
+    - [Build the Images](#build-the-images)
+    - [Upload the Images to the Remote Server](#upload-the-images-to-the-remote-server)
+  - [How to Use the Project's Container](#how-to-use-the-projects-container)
   - [Creating Overlays for a Container](#creating-overlays-for-a-container)
-- [Possible improvements](#possible-improvements)
+  - [Troubleshooting](#troubleshooting)
+- [Possible Improvements](#possible-improvements)
 
-## Why use the containers?
+## Why Use the Containers?
 
 Containers are lightweight, portable environments that package everything needed to run a project, from code and libraries to system tools and settings. Using containers provides several advantages:
 
@@ -33,7 +34,7 @@ Containers are lightweight, portable environments that package everything needed
   
 Apptainer, used in this template, is a highly efficient container platform optimized for scientific computing and high-performance computing (HPC) workloads.
 
-## Repository structure
+## Repository Structure
 
 The repository is organized into several key directories:
 
@@ -73,9 +74,9 @@ To build and use the containers, you'll need the following software installed:
 
 These dependencies will be installed automatically when necessary.
 
-## How to create a project's container
+## How to Create a Project's Container
 
-### Configure the project
+### Configure the Project
 
 Before building your project's container, you'll need to configure it by modifying files in the `config` directory. For detailed guidance on configuring the project, refer to the [Config documentation](docs/config.md).
 
@@ -101,7 +102,7 @@ source /path/to/setup.sh
 
 This will allow you to use the project’s scripts as shell commands. If you prefer not to modify your `.bashrc`, you can source the `setup.sh` script manually.
 
-### Build the images
+### Build the Images
 
 Once the project is configured, you can build the container images by running the following command:
 
@@ -111,7 +112,7 @@ cras_project build_image
 
 This will generate the appropriate container image in the `images` directory. More information on the build process can be found in the [Build documentation](docs/build.md).
 
-### Upload the images to the remote server
+### Upload the Images to the Remote Server
 
 After building the images, you can upload them to a remote server for others to use. To do this, execute:
 
@@ -121,7 +122,7 @@ cras_project upload_image
 
 For more on uploading and downloading images, refer to the [Scripts documentation](docs/scripts.md).
 
-## How to use the project's container
+## How to Use the Project's Container
 
 Once the container images have been built and uploaded, you can download and run them on any machine. To download the images, use the following command:
 
@@ -166,7 +167,26 @@ To modify or add files to a container image, you can create an overlay. For exam
     nmap --version
     ```
 
-# Possible improvements
+## Troubleshooting
+
+If you encounter any issues, first run the command with the `--help` flag to see the available options and usage instructions.
+
+```bash
+cras_project start_container --help
+```
+
+If you're still having trouble, try to run the command with the `--debug` flag to get more detailed output:
+
+```bash
+cras_project start_container --debug
+```
+
+You should see something like this:
+
+![Debug Mode](docs/images/debug_mode.png)
+
+
+# Possible Improvements
 
 - [ ] Add catkin config
 - [ ] Build images automatically
