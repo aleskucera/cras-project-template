@@ -152,12 +152,13 @@ main() {
   # Initialize the workspace
   init_workspace
 
-  # Sleep for a while to let the user read the messages
-  sleep 1
+  debug_log "Changing the directory to the workspace directory: ${BOLD}$WORKSPACE_DIR${RESET}"
+  cd "${WORKSPACE_DIR}" || exit 1
 
   # Start the interactive bash
   info_log "Starting interactive bash"
-  cd "${WORKSPACE_DIR}" || exit 1
+  debug_log "Starting the interactive bash by running the command: ${BOLD}bash${RESET}"
+  
   bash
 }
 

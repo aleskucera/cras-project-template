@@ -63,6 +63,7 @@ main() {
     done
 
     # Ensure the operation is either "upload" or "download"
+    debug_log "Checking if the operation is valid: ${operation}"
     if [ "$operation" != "upload" ] && [ "$operation" != "download" ]; then
         print_usage
         handle_error "Invalid operation: $operation"

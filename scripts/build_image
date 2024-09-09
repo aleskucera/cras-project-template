@@ -34,6 +34,9 @@ create_metadata() {
     \"created_at\": \"${created_at}\",
     \"created_by\": \"${created_by}\"
 }" > "${METADATA_FILE}"
+
+    debug_log "Created metadata file ${BOLD}$(basename "${METADATA_FILE}")${RESET}"
+    debug_log "Metadata: ${BOLD}$(cat "${METADATA_FILE}")${RESET}"
 }
 
 # Function to handle existing images: prompt for backup or deletion
@@ -44,10 +47,16 @@ remove_image_or_create_backup() {
 
     if [[ ! $REPLY =~ ^[Yy]$ ]]
     then
+
+        debug_log "Running the command: ${BOLD} sudo rm -f \"${IMAGE_FILE}\" ${RESET}"
+        debug_log "Running the command: ${BOLD} sudo rm -f \"${METADATA_FILE}\" ${RESET}"
         # If the user chooses not to create a backup, delete the old image and its metadata
         sudo rm -f "${IMAGE_FILE}"
         sudo rm -f "${METADATA_FILE}"
     else
+
+        debug_log "Running the command: ${BOLD} sudo mv \"${IMAGE_FILE}\"{,.bak} ${RESET}"
+        debug_log "Running the command: ${BOLD} sudo mv \"${METADATA_FILE}\"{,.bak} ${RESET}"
         # If the user chooses to create a backup, rename the old image and its metadata
         sudo mv "${IMAGE_FILE}"{,.bak}
         sudo mv "${METADATA_FILE}"{,.bak}
@@ -56,14 +65,18 @@ remove_image_or_create_backup() {
 
 # Function to build the Apptainer image
 build_image() {
+    debug_log "Building the image using Apptainer"
     cd "${BUILD_DIR}" || exit 1
     if [ "${HARDWARE_TYPE}" = "jetson" ]; then
         # Set temporary and cache directories for Jetson architecture
         export APPTAINER_TMPDIR="${HOME}/.apptainer_tmp"
         export APPTAINER_CACHEDIR="${HOME}/.apptainer_cache"
+
+        debug_log "Running the command: ${BOLD} sudo -E apptainer build --nv --build-arg SSH_DIR=\"${HOME}/.ssh\" \"${IMAGE_FILE}\" \"${DEFINITION_FILE}\" 2>&1 | tee \"${BUILD_LOG_FILE}\" ${RESET}"
         # Build the image with Nvidia GPU support, logging output to the log file
         sudo -E apptainer build --nv --build-arg SSH_DIR="${HOME}/.ssh" "${IMAGE_FILE}" "${DEFINITION_FILE}" 2>&1 | tee "${BUILD_LOG_FILE}"
     else
+        debug_log "Running the command: ${BOLD} sudo apptainer build --nv --build-arg SSH_DIR=\"${HOME}/.ssh\" \"${IMAGE_FILE}\" \"${DEFINITION_FILE}\" 2>&1 | tee \"${BUILD_LOG_FILE}\" ${RESET}"
         # Build the image with Nvidia GPU support, logging output to the log file
         sudo apptainer build --nv --build-arg SSH_DIR="${HOME}/.ssh" "${IMAGE_FILE}" "${DEFINITION_FILE}" 2>&1 | tee "${BUILD_LOG_FILE}"
     fi
@@ -71,8 +84,11 @@ build_image() {
 
 # Function to change ownership and permissions of the image and metadata files
 change_owner_and_rights() {
+    debug_log "Changing the owner of the image file and metadata file to the current user"
     sudo chown "${USER}":"${USER}" "${IMAGE_FILE}"
     sudo chown "${USER}":"${USER}" "${METADATA_FILE}"
+
+    debug_log "Changing the permissions of the image file to 775 and metadata file to 664"
     sudo chmod 775 "${IMAGE_FILE}"
     sudo chmod 664 "${METADATA_FILE}"
 }

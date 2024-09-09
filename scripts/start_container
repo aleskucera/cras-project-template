@@ -129,7 +129,8 @@ main() {
     else
         info_log "Starting Apptainer container from image ${PINK}$(basename "${IMAGE_FILE}")${RESET}."
     fi
-    
+
+    debug_log "Running:${BOLD} apptainer exec $nvidia_gpu $OVERLAY_ARG -B \"${MOUNT_PATHS[$HARDWARE_TYPE]}\" -e $IMAGE_FILE \"${SCRIPTS_DIR}/utils/init_workspace.sh\" $debug ${RESET}" 
     apptainer exec $nvidia_gpu $OVERLAY_ARG -B "${MOUNT_PATHS[$HARDWARE_TYPE]}" -e $IMAGE_FILE "${SCRIPTS_DIR}/utils/init_workspace.sh" $debug
 }
 

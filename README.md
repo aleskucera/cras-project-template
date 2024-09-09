@@ -16,6 +16,7 @@ The documentation is structured as follows:
     - [Build the images](#build-the-images)
     - [Upload the images to the remote server](#upload-the-images-to-the-remote-server)
   - [How to use the project's container](#how-to-use-the-projects-container)
+  - [Creating Overlays for a Container](#creating-overlays-for-a-container)
 - [Possible improvements](#possible-improvements)
 
 ## Why use the containers?
@@ -134,6 +135,36 @@ After downloading the images, you can start the container and run the project wi
 cras_project start_container
 ```
 
+## Creating Overlays for a Container
+
+To modify or add files to a container image, you can create an overlay. For example if you want to install a package in the container, you can follow these steps:
+
+1. **Create an Overlay**  
+   Run the following command to generate an overlay image inside the `overlays` directory:
+   ```bash
+   cras_project create_overlay
+    ```
+2. **Run the Container With the Overlay**
+   Suppose you want to install the `nmap` package. To do this, start the container with the `--overlay` option using `sudo`:
+    ```bash
+    sudo cras_project start_container --overlay
+    ```
+3. **Install the Desired Package**  
+   Once the container is running, install the package using `apt`:
+   ```bash
+   apt update
+   apt install nmap
+   ```
+4. **Exit the Container and Run It Without `sudo`**
+    After installing the package, exit the container and run it without `sudo`:
+    ```bash
+    cras_project start_container
+    ```
+5. **Verify the Package Installation**
+    To confirm that the `nmap` package is installed, run:
+    ```bash
+    nmap --version
+    ```
 
 # Possible improvements
 
