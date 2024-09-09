@@ -120,8 +120,6 @@ After building the images, you can upload them to a remote server for others to 
 cras_project upload_image
 ```
 
-For more on uploading and downloading images, refer to the [Scripts documentation](docs/scripts.md).
-
 ## How to Use the Project's Container
 
 Once the container images have been built and uploaded, you can download and run them on any machine. To download the images, use the following command:

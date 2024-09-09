@@ -1,37 +1,37 @@
 # Project Environment
 
-The project environment is defined in the `env` directory of the project. The `env` directory contains the following files:
+The project environment is configured through the `env` directory, which contains various files to manage and set up the environment for your project.
 
 ## `bashrc.sh`
 
-The `bashrc.sh` file is the main environment file for the project. It is copied during the build process to the `/etc/bash.bashrc` file in the container. This file is sourced every time a new shell is opened in the container. You can use this file to define environment variables that are needed for the project.
+The `bashrc.sh` file is the primary environment file for the project. During the build process, this file is copied into the container as `/etc/bash.bashrc`, which is sourced every time a new shell is launched inside the container. You can use this file to define project-specific environment variables.
 
-> [!Note] 
-> `/etc/bash.bashrc` is the system-wide `.bashrc` file in the container. It has lower priority than the user's `.bashrc` file, so the environment variables defined in the `bashrc.sh` file will not override the user's environment variables, which is neat.
+> **Note:**  
+> The `/etc/bash.bashrc` file applies system-wide within the container but has lower priority than a user's personal `.bashrc`. This means any environment variables defined in `bashrc.sh` will not override user-defined variables, making it a safer way to set global variables.
 
-## Other `.sh` files
+## Additional `.sh` Files
 
-You can also create other `.sh` files in the `env` directory to define additional environment variables. Then you can source them in the `bashrc.sh` file. This way you can keep the environment variables organized and separated by their purpose. For example there are already some files in the `env` directory:
+You can also create other `.sh` files in the `env` directory to organize and manage additional environment variables. These files can be sourced from `bashrc.sh` to keep things modular and well-organized. For instance, here are some files already present in the `env` directory:
 
-- `bash_aliases.sh`: This file is used to define bash aliases that are needed for the project.
-- `bash_exports.sh`: This file is used to define bash exports that are needed for the project.
-- `bash_functions.sh`: This file is used to define bash functions that are needed for the project.
-- `bash_prompt.sh`: This file is used to define the bash prompt that is used in the container.
+- **`bash_aliases.sh`**: Contains bash aliases necessary for the project.
+- **`bash_exports.sh`**: Defines export statements for project-specific variables.
+- **`bash_functions.sh`**: Houses any bash functions required by the project.
+- **`bash_prompt.sh`**: Configures the bash prompt that will be used within the container.
 
-> [!NOTE] 
-> The files in the `env` directory are sourced in the order they are listed in the `bashrc.sh` file. So make sure to list the files in the correct order to avoid conflicts between the environment variables.
+> **Note:**  
+> The files in the `env` directory are sourced in the order they are listed within `bashrc.sh`. Be mindful of the sequence to avoid potential conflicts between environment variables or other settings.
 
 ## `tmux.conf`
 
-The `tmux.conf` file is the configuration file for the `tmux` terminal multiplexer. It is copied during the build process to the `/etc/tmux.conf` file in the container. This file is sourced every time a new `tmux` session is started in the container. You can use this file to define the `tmux` configuration that is needed for the project.
+The `tmux.conf` file sets up the configuration for `tmux`, a terminal multiplexer, and is copied into the container as `/etc/tmux.conf` during the build process. This file is sourced every time a new `tmux` session starts inside the container, ensuring your `tmux` setup is consistent with your shell environment.
 
-We have already defined some basic configuration for the `tmux` like
+Here’s an example of what’s already configured:
 
 ```bash
 set-option -g default-command "bash --rcfile /etc/bash.bashrc"
 ```
 
-This line will source the `/etc/bash.bashrc` file every time a new `tmux` session is started in the container. This way you can have the same environment variables in the `tmux` session as in the shell session.
+This line ensures that every new `tmux` session automatically sources the `/etc/bash.bashrc` file, giving you the same environment in both shell and `tmux` sessions.
 
 ```bash
 unbind C-b
@@ -39,4 +39,6 @@ set-option -g prefix C-a
 bind-key C-a send-prefix
 ```
 
-These lines will change the `tmux` prefix key from `C-b` to `C-a`. This is a common configuration that is used by many people.
+These lines change the default `tmux` prefix key from `C-b` to `C-a`, which is a popular customization for easier use.
+
+By configuring the environment in this way, you can maintain a clean, organized, and consistent setup for your project within the container.
