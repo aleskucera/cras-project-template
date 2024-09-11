@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# ============= START: PROJECT SPECIFIC VARIABLES =============
-
 # Project name with lowercase letters and no spaces
 IMAGE_NAME="cras_project"
 PROJECT_NAME="CRAS Project"
@@ -10,6 +8,9 @@ PROJECT_NAME="CRAS Project"
 REMOTE_SERVER="login3.rci.cvut.cz"
 REMOTE_IMAGES_PATH="/mnt/data/vras/data/robotour2024/images"
 
+# Arguments provided to catkin config
+CATKIN_CONFIG_ARGS="-DPYTHON_EXECUTABLE=/usr/bin/python3 \
+                    --extend /opt/dependency_workspace/install"
 
 # -------- Start: Environment variables --------
 
@@ -22,6 +23,7 @@ export APPTAINERENV_XAUTHORITY="${XAUTHORITY}"
 export APPTAINERENV_PROJECT_NAME=${PROJECT_NAME}
 
 # -------- End: Environment variables --------
+
 # -------- Start: Hardware specific paths --------
 
 # Get the project folder
@@ -105,5 +107,3 @@ MOUNT_PATHS["arm64"]="$(format_paths "$(common_mount_paths),$(arm64_mount_paths)
 MOUNT_PATHS["jetson"]="$(format_paths "$(common_mount_paths),$(jetson_mount_paths)")"
 
 # -------- End: Hardware specific bind mount_paths --------
-
-# ============= END: PROJECT SPECIFIC VARIABLES =============

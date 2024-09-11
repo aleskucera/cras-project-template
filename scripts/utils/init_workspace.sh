@@ -16,13 +16,14 @@ source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/functions.sh"
 
 # ============= END: Source the variables and utility functions =============
 
+# TODO: Change the function
 init_workspace() {
   # Check if the catkin workspace is initialized
   cd "${WORKSPACE_DIR}" || exit 1
   if [ ! -d build ] || [ ! -d devel ]; then
     info_log "Initializing the catkin workspace."
     source /opt/ros/noetic/setup.bash
-    catkin build -DPYTHON_EXECUTABLE=/usr/bin/python3
+    catkin build
   else
     info_log "The catkin workspace is already initialized."
   fi
@@ -49,18 +50,26 @@ fetch_packages() {
 convert_url() {
     local url=$1
 
-    # Check if the URL is a GitHub URL using HTTPS
+    # Check if the URL is a GitHub URL using HTTPS protocol
     if [[ $url =~ ^https://github\.com/(.*)\.git$ ]]; then
-        # Convert HTTPS to git protocol
-        echo "git@github.com:${BASH_REMATCH[1]}.git"
-
-    # Check if the URL is a GitLab URL using git protocol
+        if is_robot; then
+            debug_log "Skipping GitHub URL conversion for the robot."
+            echo "$url"
+        else
+            debug_log "Converting GitHub URL to ssh protocol for the local machine."
+            echo "git@github.com:${BASH_REMATCH[1]}.git"
+        fi
+    # Check if the URL is a GitLab URL using shh protocol
     elif [[ $url =~ ^git@gitlab\.fel\.cvut\.cz:(.*)\.git$ ]]; then
-        # Convert git protocol to HTTPS
-        echo "https://gitlab.fel.cvut.cz/${BASH_REMATCH[1]}.git"
-
+        if is_robot; then
+            debug_log "Converting GitLab URL to HTTPS protocol for the robot."
+            echo "https://gitlab.fel.cvut.cz/${BASH_REMATCH[1]}.git"
+        else
+            debug_log "Skipping GitLab URL conversion for the local machine."
+            echo "$url"
+        fi
     else
-        error_log "Invalid pull URL format: $url"
+        error_log "Invalid fetch URL format: $url"
         return 1
     fi
 }
@@ -72,31 +81,30 @@ update_push_urls() {
     info_log "Updating the push URLs of the repositories in $base_dir..."
     for dir in "$base_dir"/*/; do
         if [ -d "$dir/.git" ]; then
+            debug_log ""
             debug_log "Processing repository: $dir"
 
             # Get the current pull URL (origin)
             current_url=$(git -C "$dir" remote get-url origin)
 
             if [ $? -eq 0 ]; then
-                debug_log "Fetch URL: $current_url"
+                debug_log "Fetch URL: $current_url."
 
                 # Convert the URL if it's valid
                 new_url=$(convert_url "$current_url")
 
                 if [ $? -eq 0 ]; then
-                    debug_log "Updating push URL: $new_url"
-
                     # Set the new URL as the push URL
                     git -C "$dir" remote set-url --push origin "$new_url"
-                    debug_log "Updated push URL for $dir"
+                    debug_log "Push URL: $new_url."
                 else
-                    debug_log "Skipping invalid URL in $dir"
+                    debug_log "Skipping invalid URL in $dir."
                 fi
             else
-                debug_log "No valid remote 'origin' found for $dir"
+                debug_log "No valid remote 'origin' found for $dir."
             fi
         else
-            debug_log "$dir is not a git repository"
+            debug_log "$dir is not a git repository."
         fi
     done
 }
@@ -152,7 +160,7 @@ main() {
   # Initialize the workspace
   init_workspace
 
-  debug_log "Changing the directory to the workspace directory: ${BOLD}$WORKSPACE_DIR${RESET}"
+  debug_log "Changing the directory to the workspace directory: ${BOLD}${WORKSPACE_DIR}${RESET}"
   cd "${WORKSPACE_DIR}" || exit 1
 
   # Start the interactive bash

@@ -3,8 +3,6 @@
 # Source the configuration variables
 source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/../../config/config.sh"
 
-# ============= START: SHARED VARIABLES =============
-
 # Type of the local hardware (amd64, jetson, arm64)
 HARDWARE_TYPE="amd64"
 if [ -d "/usr/lib/aarch64-linux-gnu/tegra" ]; then
@@ -82,5 +80,3 @@ else
     YELLOW="\e[1;33m"
     PINK="\e[1;95m"
 fi
-
-# ============= END: SHARED VARIABLES =============

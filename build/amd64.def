@@ -9,7 +9,7 @@ FROM: ghcr.io/sloretz/ros:noetic-simulators-osrf
     mkdir -p ${APPTAINER_ROOTFS}/.tmp
     mkdir -p ${APPTAINER_ROOTFS}/root/.ssh
     mkdir -p ${APPTAINER_ROOTFS}/.config
-    mkdir -p ${APPTAINER_ROOTFS}/.workspace/src
+    mkdir -p ${APPTAINER_ROOTFS}/.dependencies
     mkdir -p ${APPTAINER_ROOTFS}/.custom_commands
 
 %files
@@ -17,7 +17,7 @@ FROM: ghcr.io/sloretz/ros:noetic-simulators-osrf
     ../config/* /.config/
     ../commands/* /.custom_commands/
     {{ SSH_DIR }}/* /root/.ssh/
-    install_repos.sh /.tmp/
+    build_dependencies.sh /.tmp/
     ../env/sudo /usr/bin/sudo
 
 %environment
@@ -43,13 +43,7 @@ FROM: ghcr.io/sloretz/ros:noetic-simulators-osrf
     chmod +x /.custom_commands/*
 
     # Install custom repositories
-    cd /.tmp
-    vcs import < "/.config/packages.repos"
-
-    # Install rosdep dependencies
-    rosdep update
-    rosdep install --from-paths /.tmp --ignore-src -y
-    rm -rf /.tmp
+    bash /.tmp/build_dependencies.sh
 
     # Configure tmux and bash
     ln -fs $BASHRC /etc/bash.bashrc

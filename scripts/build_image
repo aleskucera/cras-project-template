@@ -24,6 +24,8 @@ source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/utils/functions.sh"
 
 # ============= END: Source the variables and utility functions =============
 
+# ============= START: Functions =============
+
 # Function to create metadata file with creation time and user info
 create_metadata() {
     created_at=$(date +"%Y-%m-%d %H:%M:%S")  # Get the current date and time
@@ -93,6 +95,10 @@ change_owner_and_rights() {
     sudo chmod 664 "${METADATA_FILE}"
 }
 
+# ============= END: Functions =============
+
+# ============= START: Main Script =============
+
 main() {
     # Parse command-line arguments
     while [[ $# -gt 0 ]]; do
@@ -148,5 +154,7 @@ main() {
     create_metadata
     change_owner_and_rights
 }
+
+# ============= END: Main Script =============
 
 main "$@"

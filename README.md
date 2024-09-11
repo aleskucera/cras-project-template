@@ -187,5 +187,5 @@ You should see something like this:
 # Possible Improvements
 
 - [ ] Add catkin config
-- [ ] Build images automatically
-- [ ] Rosinstall dependencies
+- [ ] Catkin config extend
+- [ ] Build images automatically on push

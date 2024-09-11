@@ -14,9 +14,15 @@ Options:
 EOF
 }
 
+# ============= START: Source the variables and utility functions =============
+
 # Source the variables and utility functions from external scripts
 source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/utils/vars.sh"
 source "$(realpath "$(dirname "${BASH_SOURCE[0]}")")/utils/functions.sh"
+
+# ============= END: Source the variables and utility functions =============
+
+# ============= START: Main Script =============
 
 main() {
     # Parse command-line arguments
@@ -70,5 +76,7 @@ main() {
     debug_log "Running: apptainer overlay create --size ${overlay_size} ${OVERLAYS_DIR}/${overlay_name}"
     apptainer overlay create --size ${overlay_size} ${OVERLAYS_DIR}/${overlay_name}
 }
+
+# ============= END: Main Script =============
 
 main "$@"
