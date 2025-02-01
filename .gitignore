@@ -12,3 +12,6 @@ workspace/*
 !workspace/src/
 workspace/src/*
 !workspace/src/.gitkeep
+
+.vscode/
+.idea/
