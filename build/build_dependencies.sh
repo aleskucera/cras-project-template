@@ -19,8 +19,8 @@ import_dependencies() {
 
 main() {
     # Create the directories
-    mkdir -p ${DEPENDENCY_DIR}
     mkdir -p ${TMP_WORKSPACE_SRC}
+    mkdir -p ${DEPENDENCY_WORKSPACE_SRC}
 
     # Source ROS
     source /opt/ros/noetic/setup.bash
